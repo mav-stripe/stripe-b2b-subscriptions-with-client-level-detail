@@ -175,11 +175,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - Search across organization names
 - "View Clients" button for sub-orgs
 
+![Dashboard Homepage](https://raw.githubusercontent.com/mav-stripe/stripe-b2b-subscriptions-with-client-level-detail/refs/heads/master/images/spa_home.jpg)
+
 ### `/customer-create` - Create Organization/Sub-Organization
 - Create new top-level organizations
 - Create sub-organizations within parent orgs
 - Auto-save draft functionality
 - Parent org autocomplete for sub-orgs
+
+![Create Sub-Organization](https://raw.githubusercontent.com/mav-stripe/stripe-b2b-subscriptions-with-client-level-detail/refs/heads/master/images/create-new-sub-org.jpg)
 
 ### `/client-create` - Create Individual Client
 - Assign client to a sub-organization
