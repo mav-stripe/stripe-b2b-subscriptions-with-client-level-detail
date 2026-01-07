@@ -191,10 +191,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - Automatically includes parent org details
 - Creates Stripe subscription for the client
 
+![Create Client](https://raw.githubusercontent.com/mav-stripe/stripe-b2b-subscriptions-with-client-level-detail/refs/heads/master/images/client-create.jpg)
+
 ### `/client-create-batch` - Batch Create Clients
 - Generate 1-1000 clients at once with random names (faker.js)
 - Progress tracking with percentage and list of created clients
 - Useful for testing and demos
+
+![Batch Create Clients](https://raw.githubusercontent.com/mav-stripe/stripe-b2b-subscriptions-with-client-level-detail/refs/heads/master/images/create-clients-batch.jpg)
 
 ### `/clients-view` - View Clients for Sub-Organization
 - List all clients within a sub-org
@@ -202,6 +206,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - Pause/Resume subscription buttons
 - Direct links to Stripe Dashboard
 - Breadcrumb navigation (Parent Org / Sub-Org / Clients)
+
+![View Clients](https://raw.githubusercontent.com/mav-stripe/stripe-b2b-subscriptions-with-client-level-detail/refs/heads/master/images/client-list-for-sub-org.jpg)
 
 ## Documentation
 
