@@ -2,6 +2,8 @@
 
 A comprehensive demonstration of B2B subscription management using Stripe, featuring client-level subscription tracking within organizations and sub-organizations. This proof-of-concept showcases how businesses can manage multi-level customer hierarchies with individual client subscriptions.
 
+![SPA Homepage](https://raw.githubusercontent.com/mav-stripe/stripe-b2b-subscriptions-with-client-level-detail/refs/heads/master/images/spa_home.jpg)
+
 ## Features
 
 - **Multi-Level Customer Management**: Organizations → Sub-Organizations → Individual Clients
