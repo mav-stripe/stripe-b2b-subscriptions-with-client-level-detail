@@ -1,0 +1,36 @@
+{
+  "tableTitle": "customers",
+  "tableDescription": "",
+  "fields": [
+    {
+      "title": "name",
+      "type": "SingleLineText"
+    },
+    {
+      "title": "customer_type",
+      "type": "SingleLineText",
+      "description": "end user, org, sub-org etc "
+    },
+    {
+      "title": "parent_org_id",
+      "type": "Number",
+      "options": {}
+    },
+    {
+      "title": "client_count",
+      "type": "Number",
+      "default_value": "0",
+      "options": {}
+    },
+    {
+      "title": "client_count_active",
+      "type": "Number",
+      "options": {}
+    },
+    {
+      "title": "client_count_paused",
+      "type": "Number",
+      "options": {}
+    }
+  ]
+}

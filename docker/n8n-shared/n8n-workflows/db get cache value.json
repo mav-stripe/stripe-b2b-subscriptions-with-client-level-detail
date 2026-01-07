@@ -1,0 +1,346 @@
+{
+  "updatedAt": "2025-12-22T06:53:31.117Z",
+  "createdAt": "2025-12-22T06:12:51.560Z",
+  "id": "VxVHrs3CH9WAj7ZI",
+  "name": "db get cache value",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "get-cache-value",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "24f50bf8-2a65-4a66-8789-e4ba6da5d926",
+      "name": "Webhook",
+      "webhookId": "2822e042-9974-4abc-9487-b4818ed046bc"
+    },
+    {
+      "parameters": {
+        "url": "=http://nocodb_b2b_subscriptions:8080/api/v2/tables/mfm0szzz5qn1u90/records?offset=0&limit=1000&where=(c5aa21het0ei276,eq,{{ $json.body.key }})\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "nocoDbApiToken",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "af39500b-96a4-42b5-a3af-fccbe8168fb8",
+      "name": "CMS get suborgs for org1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        896,
+        0
+      ],
+      "id": "37f0459d-2881-4f3c-af0b-6b2cfa17ed95",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "94122511-f6ef-458b-a96c-782ba0bd0c79",
+              "leftValue": "={{ $json.list[0].value_type }}",
+              "rightValue": "json string",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8896542a-1ce9-4404-b9e2-52d2318651d9",
+      "name": "cache type json string?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n\nlet jsoobj = {}\nlet itemt = $input.first().json\n jsoobj = JSON.parse(itemt.list[0].value)\nfor (const item of $input.all()) {\n // item.json.myNewField = 1;\n \n}\n\nreturn jsoobj"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "06bef8d1-d926-4c22-9e11-61cdbb980888",
+      "name": "prep response"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "CMS get suborgs for org1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS get suborgs for org1": {
+      "main": [
+        [
+          {
+            "node": "cache type json string?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cache type json string?": {
+      "main": [
+        [
+          {
+            "node": "prep response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prep response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "body": {
+            "key": "overall_stats"
+          }
+        }
+      }
+    ]
+  },
+  "versionId": "a353d662-6791-4a68-a7ad-5e88f17b349d",
+  "activeVersionId": "a353d662-6791-4a68-a7ad-5e88f17b349d",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2025-12-22T06:12:51.562Z",
+      "createdAt": "2025-12-22T06:12:51.562Z",
+      "role": "workflow:owner",
+      "workflowId": "VxVHrs3CH9WAj7ZI",
+      "projectId": "nItPZc4XiFJ8PFCo"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2025-12-22T06:53:31.118Z",
+    "createdAt": "2025-12-22T06:53:31.118Z",
+    "versionId": "a353d662-6791-4a68-a7ad-5e88f17b349d",
+    "workflowId": "VxVHrs3CH9WAj7ZI",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "get-cache-value",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "24f50bf8-2a65-4a66-8789-e4ba6da5d926",
+        "name": "Webhook",
+        "webhookId": "2822e042-9974-4abc-9487-b4818ed046bc"
+      },
+      {
+        "parameters": {
+          "url": "=http://nocodb_b2b_subscriptions:8080/api/v2/tables/mfm0szzz5qn1u90/records?offset=0&limit=1000&where=(c5aa21het0ei276,eq,{{ $json.body.key }})\n",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "nocoDbApiToken",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          224,
+          0
+        ],
+        "id": "af39500b-96a4-42b5-a3af-fccbe8168fb8",
+        "name": "CMS get suborgs for org1",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {
+            "responseCode": 200
+          }
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.4,
+        "position": [
+          896,
+          0
+        ],
+        "id": "37f0459d-2881-4f3c-af0b-6b2cfa17ed95",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "94122511-f6ef-458b-a96c-782ba0bd0c79",
+                "leftValue": "={{ $json.list[0].value_type }}",
+                "rightValue": "json string",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          448,
+          0
+        ],
+        "id": "8896542a-1ce9-4404-b9e2-52d2318651d9",
+        "name": "cache type json string?"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n\nlet jsoobj = {}\nlet itemt = $input.first().json\n jsoobj = JSON.parse(itemt.list[0].value)\nfor (const item of $input.all()) {\n // item.json.myNewField = 1;\n \n}\n\nreturn jsoobj"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          672,
+          0
+        ],
+        "id": "06bef8d1-d926-4c22-9e11-61cdbb980888",
+        "name": "prep response"
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "CMS get suborgs for org1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS get suborgs for org1": {
+        "main": [
+          [
+            {
+              "node": "cache type json string?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "cache type json string?": {
+        "main": [
+          [
+            {
+              "node": "prep response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "prep response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "mav peri",
+    "name": null,
+    "description": null
+  },
+  "tags": []
+}

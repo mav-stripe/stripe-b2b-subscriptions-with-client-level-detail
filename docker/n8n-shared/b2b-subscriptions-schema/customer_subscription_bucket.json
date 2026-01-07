@@ -1,0 +1,20 @@
+{
+  "tableTitle": "customer_subscription_bucket",
+  "tableDescription": "we use this table to work around the stripe 500 subscriptions per customer list",
+  "fields": [
+    {
+      "title": "customer_id",
+      "type": "Number",
+      "options": {}
+    },
+    {
+      "title": "total_clients_assigned",
+      "type": "Number",
+      "options": {}
+    },
+    {
+      "title": "stripe_customer_id",
+      "type": "SingleLineText"
+    }
+  ]
+}

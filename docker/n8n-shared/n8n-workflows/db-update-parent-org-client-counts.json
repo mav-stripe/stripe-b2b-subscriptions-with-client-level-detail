@@ -1,0 +1,179 @@
+{
+  "updatedAt": "2025-12-22T06:33:31.213Z",
+  "createdAt": "2025-12-22T06:32:36.738Z",
+  "id": "jZmh939NhxIcIfXz",
+  "name": "db-update-parent-org-client-counts",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "parent_org_id",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1e3fe28f-ebd9-4658-9a0c-d230426b5c02",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "=http://nocodb_b2b_subscriptions:8080/api/v2/tables/mczt2y5uzyqbl86/records?offset=0&limit=1000&where=(c8bgfd2nepylelr,eq,{{ $('When Executed by Another Workflow').item.json.parent_org_id }})\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "nocoDbApiToken",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        0
+      ],
+      "id": "98a211ff-1692-4267-afa1-0f7a770d6963",
+      "name": "CMS GET customers for parent org",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nlet obj = {\n  client_count: 0,\n  client_count_active: 0,\n  client_count_paused: 0\n}\nfor (const itemt of $input.all()) {\n//  item.json.myNewField = 1;\n  for(const item of itemt.json.list){\n    obj.client_count_active =  obj.client_count_active  + item.client_count_active\n    obj.client_count_paused = obj.client_count_paused + item.client_count_paused\n    obj.client_count = obj.client_count + item.client_count\n  }\n}\n\nreturn obj"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "0edb8492-d389-4380-b114-a015e39c44b0",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "mczt2y5uzyqbl86",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "client_count",
+              "fieldValue": "={{ $json.client_count }}"
+            },
+            {
+              "fieldName": "client_count_active",
+              "fieldValue": "={{ $json.client_count_active }}"
+            },
+            {
+              "fieldName": "client_count_paused",
+              "fieldValue": "={{ $json.client_count_paused }}"
+            },
+            {
+              "fieldName": "Id",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.parent_org_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        816,
+        0
+      ],
+      "id": "5e9f65c7-3619-4c44-be4b-78b31e8619dd",
+      "name": "Update a row",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "CMS GET customers for parent org",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS GET customers for parent org": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "parent_org_id": 36
+        }
+      }
+    ]
+  },
+  "versionId": "40aa46f7-d757-47f9-ac07-244758ec43c2",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2025-12-22T06:32:36.740Z",
+      "createdAt": "2025-12-22T06:32:36.740Z",
+      "role": "workflow:owner",
+      "workflowId": "jZmh939NhxIcIfXz",
+      "projectId": "nItPZc4XiFJ8PFCo"
+    }
+  ],
+  "activeVersion": null,
+  "tags": [
+    {
+      "updatedAt": "2025-12-22T06:07:44.324Z",
+      "createdAt": "2025-12-22T06:07:44.324Z",
+      "id": "gu0ceXWNm5qUUdZf",
+      "name": "db"
+    }
+  ]
+}

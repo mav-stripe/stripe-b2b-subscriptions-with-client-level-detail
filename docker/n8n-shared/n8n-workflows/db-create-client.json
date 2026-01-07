@@ -1,0 +1,2312 @@
+{
+  "updatedAt": "2025-12-22T06:50:52.171Z",
+  "createdAt": "2025-12-22T06:44:05.305Z",
+  "id": "tAQor5plSYocveVe",
+  "name": "db-create-client",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "create-client",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        176
+      ],
+      "id": "c419c81b-1b67-472a-bfb9-1be7a0047f14",
+      "name": "Webhook",
+      "webhookId": "9bb60f67-163a-4c53-b222-71e87c1dcde2"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3584,
+        176
+      ],
+      "id": "7b2ea03e-d24c-47a3-a386-4e34f91aa97e",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "url": "=http://nocodb_b2b_subscriptions:8080/api/v2/tables/mtqzc80k0nz1xs3/records?offset=0&limit=1000&where=(ckvrefiqrww7osy,eq,{{ $json.body.customer_id }})~and(cnczbz8s77km86g,lt,500)\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "nocoDbApiToken",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        176
+      ],
+      "id": "1b39fada-fac0-41e9-9fa6-bd6141bc4fae",
+      "name": "CMS GET bucket",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4ed78f19-d86d-407c-a818-c3f296d0a62c",
+              "leftValue": "={{ $json.pageInfo.totalRows }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        176
+      ],
+      "id": "ecebd280-0b1e-4c33-a176-962b0c27674b",
+      "name": "customer bucket exists"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/customers",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=name",
+              "value": "={{ $('Webhook').item.json.body.parent_org_name }} - {{ $('Webhook').item.json.body.org_name }}"
+            },
+            {
+              "name": "metadata",
+              "value": "={{\n\n{\n   cms_customer_subscrbucket_id: $json.customer_id,\n  project: \"b2b-subscription-portal\",\n  parent_customer_id: $('Webhook').item.json.body.parent_org_id,\ncustomer_id: $('Webhook').item.json.body.customer_id,\nparent_org: $('Webhook').item.json.body.org_name,\norg: $('Webhook').item.json.body.org_name\n}\n  \n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        272
+      ],
+      "id": "baffdcca-df46-4ff2-91cd-2c6589a5f962",
+      "name": "Stripe Setup Customer",
+      "credentials": {
+        "stripeApi": {
+          "id": "UfwHUKMGqcDwmoww",
+          "name": "Stripe Helms deep"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "movod4uaaxxw62n",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "name",
+              "fieldValue": "={{ $('Webhook').item.json.body.name }}"
+            },
+            {
+              "fieldName": "customer_id",
+              "fieldValue": "={{ $('Webhook').item.json.body.customer_id }}"
+            },
+            {
+              "fieldName": "customer_subscription_bucket_id",
+              "fieldValue": "={{ $('CMS create customer bucket').item.json.Id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        272
+      ],
+      "id": "e4bac7c8-afcb-4e83-b7aa-e1a47b9e1732",
+      "name": "CMS create client",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/products",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "id",
+              "value": "={{ $('Webhook').item.json.body.customer_id }}_{{ $('CMS Update bucket').first().json.Id }}_{{ $('CMS create client').first().json.Id }}"
+            },
+            {
+              "name": "metadata",
+              "value": "={{ \n\n  {\n    project: \"b2b-subscription-portal\",\n    customer_id: $('Webhook').item.json.body.customer_id,\ncustomer_subscription_bucket_id: $json.customer_subscription_bucket_id,\nclient_id: $json.Id,\norg: $('Webhook').item.json.body.org_name,\nparent_org: $('Webhook').item.json.body.org_name\n\n\n }\n\n\n}}"
+            },
+            {
+              "name": "default_price_data",
+              "value": "={{ \n  {\n    currency: \"aud\",\n    unit_amount: 9.99*100,\nrecurring: {\n                interval: $('Webhook').item.json.body.recurring_interval,\n                interval_count: $('Webhook').item.json.body.recurring_quantity\n              }\n  }\n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2464,
+        272
+      ],
+      "id": "75d4bcb6-f994-44d4-bde4-7dc0903ebe6c",
+      "name": "Stripe setup product",
+      "credentials": {
+        "stripeApi": {
+          "id": "UfwHUKMGqcDwmoww",
+          "name": "Stripe Helms deep"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "projectId": "pcsywg993oum84v",
+        "table": "mi9nwi0pj3158ju",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Id",
+              "fieldValue": "={{ $('CMS create client').item.json.Id }}"
+            },
+            {
+              "fieldName": "stripe_product_id",
+              "fieldValue": "={{ $('Stripe setup product').first().json.id }}"
+            },
+            {
+              "fieldName": "stripe_price_id",
+              "fieldValue": "={{ $json.default_price }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        2688,
+        272
+      ],
+      "id": "88aaf4e5-8546-4b56-be38-406ea3a5ca1e",
+      "name": "CMS update client",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "mtqzc80k0nz1xs3",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Id",
+              "fieldValue": "={{ $('CMS create customer bucket').item.json.Id }}"
+            },
+            {
+              "fieldName": "stripe_customer_id",
+              "fieldValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1344,
+        272
+      ],
+      "id": "02ead391-1b14-4f26-97ad-b7d5de378074",
+      "name": "CMS Update bucket",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "mtqzc80k0nz1xs3",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Id",
+              "fieldValue": "={{ $json.Id }}"
+            },
+            {
+              "fieldName": "total_clients_assigned",
+              "fieldValue": "={{ $json.total_clients_assigned + 1 }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        2016,
+        80
+      ],
+      "id": "8da68492-29af-4132-929e-53bdfcc92e8b",
+      "name": "CMS Update bucket1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/products",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "id",
+              "value": "={{ $('Webhook').item.json.body.customer_id }}_{{ $('CMS Update bucket1').first().json.Id }}_{{ $('CMS create client1').first().json.Id }}"
+            },
+            {
+              "name": "metadata",
+              "value": "={{ \n\n  {\n    project: \"b2b-subscription-portal\",\n    customer_id: $('Webhook').item.json.body.customer_id,\ncustomer_subscription_bucket_id: $json.customer_subscription_bucket_id,\nclient_id: $json.Id,\norg: $('Webhook').item.json.body.org_name,\nparent_org: $('Webhook').item.json.body.org_name\n\n\n }\n\n\n}}"
+            },
+            {
+              "name": "default_price_data",
+              "value": "={{ \n  {\n    currency: \"aud\",\n    unit_amount: 9.99*100,\n    recurring: {\n                interval: $('Webhook').item.json.body.recurring_interval,\n                interval_count:$('Webhook').item.json.body.recurring_quantity\n              }\n  }\n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2464,
+        80
+      ],
+      "id": "919b9ecf-89a8-43ca-8f83-2970733679a8",
+      "name": "Stripe setup product-1",
+      "credentials": {
+        "stripeApi": {
+          "id": "UfwHUKMGqcDwmoww",
+          "name": "Stripe Helms deep"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "movod4uaaxxw62n",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Id",
+              "fieldValue": "={{ $('CMS create client1').item.json.Id }}"
+            },
+            {
+              "fieldName": "stripe_product_id",
+              "fieldValue": "={{ $('Stripe setup product-1').first().json.id }}"
+            },
+            {
+              "fieldName": "stripe_price_id",
+              "fieldValue": "={{ $json.default_price }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        2688,
+        80
+      ],
+      "id": "9c680e4e-7635-408e-8e05-7023f06de4b3",
+      "name": "CMS update client1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n // item.json.myNewField = 1;\n}\n\nreturn $input.first().json.list;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        80
+      ],
+      "id": "b5fe221c-0569-4a49-9375-e029418f0d7b",
+      "name": "get array"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "movod4uaaxxw62n",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "name",
+              "fieldValue": "={{ $('Webhook').item.json.body.name }}"
+            },
+            {
+              "fieldName": "customer_id",
+              "fieldValue": "={{ $('Webhook').item.json.body.customer_id }}"
+            },
+            {
+              "fieldName": "customer_subscription_bucket_id",
+              "fieldValue": "={{ $json.Id }}"
+            },
+            {
+              "fieldName": "total_clients_assigned",
+              "fieldValue": "={{ $('CMS GET bucket').item.json.list[0].total_clients_assigned+1 }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        80
+      ],
+      "id": "1aaf6e29-4986-4e14-955a-1582451a4239",
+      "name": "CMS create client1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/payment_methods",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "card"
+            },
+            {
+              "name": "card",
+              "value": "={{ { token: \"tok_visa\" } }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1568,
+        272
+      ],
+      "id": "be1d6b36-bdaf-41c9-914d-36412769afc5",
+      "name": "Stripe Create Payment Method",
+      "credentials": {
+        "stripeApi": {
+          "id": "UfwHUKMGqcDwmoww",
+          "name": "Stripe Helms deep"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.stripe.com/v1/payment_methods/{{ $('Stripe Create Payment Method').item.json.id }}/attach ",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "customer",
+              "value": "={{ $('Stripe Setup Customer').item.json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1792,
+        272
+      ],
+      "id": "7be0bf41-2de6-475f-b6cc-92957cde139d",
+      "name": "Stripe Attach PM to Customer",
+      "credentials": {
+        "stripeApi": {
+          "id": "UfwHUKMGqcDwmoww",
+          "name": "Stripe Helms deep"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.stripe.com/v1/customers/{{ $('Stripe Setup Customer').item.json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "invoice_settings",
+              "value": "={{ \n{default_payment_method: $json.id}\n\n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2016,
+        272
+      ],
+      "id": "4c86beec-8295-4cab-87e5-97aa7d585204",
+      "name": "Stripe set default payment method",
+      "credentials": {
+        "stripeApi": {
+          "id": "UfwHUKMGqcDwmoww",
+          "name": "Stripe Helms deep"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/subscriptions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Stripe-Version",
+              "value": "2025-09-30.clover"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "billing_mode",
+              "value": "={{ { type: 'flexible'} }}"
+            },
+            {
+              "name": "customer",
+              "value": "={{ $('CMS GET bucket').item.json.list[0].stripe_customer_id }}"
+            },
+            {
+              "name": "items",
+              "value": "={{ \n[\n{price: $('Stripe setup product-1').item.json.default_price,\nquantity:1\n\n}\n]\n\n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2912,
+        80
+      ],
+      "id": "e7c191ee-6fc5-4594-88b2-7a733a7442e3",
+      "name": "setup subscription",
+      "credentials": {
+        "stripeApi": {
+          "id": "UfwHUKMGqcDwmoww",
+          "name": "Stripe Helms deep"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/subscriptions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Stripe-Version",
+              "value": "2025-09-30.clover"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "billing_mode",
+              "value": "={{ { type: 'flexible'} }}"
+            },
+            {
+              "name": "customer",
+              "value": "={{ $('CMS Update bucket').item.json.stripe_customer_id }}"
+            },
+            {
+              "name": "items",
+              "value": "={{ \n[\n{price: $('Stripe setup product').item.json.default_price,\nquantity:1\n\n}\n]\n\n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2912,
+        272
+      ],
+      "id": "d37d2842-8ff9-4f65-80be-ac75f4b5a510",
+      "name": "setup subscription1",
+      "credentials": {
+        "stripeApi": {
+          "id": "UfwHUKMGqcDwmoww",
+          "name": "Stripe Helms deep"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "mczt2y5uzyqbl86",
+        "id": "={{ $('Webhook').item.json.body.customer_id }}"
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        672,
+        272
+      ],
+      "id": "b54d1349-7850-42f5-9ca4-77f268f47f0e",
+      "name": "CMS Get Customer record",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "mtqzc80k0nz1xs3",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "customer_id",
+              "fieldValue": "={{ $('Webhook').item.json.body.customer_id }}"
+            },
+            {
+              "fieldName": "total_clients_assigned",
+              "fieldValue": "0"
+            },
+            {
+              "fieldName": "total_clients_assigned",
+              "fieldValue": "1"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        896,
+        272
+      ],
+      "id": "5b032b45-0f5a-4168-b2e9-608cef220a23",
+      "name": "CMS create customer bucket",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "movod4uaaxxw62n",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Id",
+              "fieldValue": "={{ $('CMS update client1').item.json.Id }}"
+            },
+            {
+              "fieldName": "stripe_subscription_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldName": "stripe_subscription_status",
+              "fieldValue": "={{ $json.status }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        3136,
+        80
+      ],
+      "id": "ae48b069-2afe-4263-b55a-060ee126bb42",
+      "name": "CMS  Update a row",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "movod4uaaxxw62n",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Id",
+              "fieldValue": "={{ $('CMS update client').item.json.Id }}"
+            },
+            {
+              "fieldName": "stripe_subscription_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldName": "stripe_subscription_status",
+              "fieldValue": "={{ $json.status }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        3136,
+        272
+      ],
+      "id": "c40b75af-0586-4f9f-9f30-bf4ced46ecaf",
+      "name": "CMS Update a row1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Client creation with customer partioning\n\nThis flow will create a new stripe customer id for every 500 subscriptions, state is tracked in the CMS and Stripe name & metadata",
+        "height": 144,
+        "width": 496
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "d475c9c2-af4e-4122-a115-e00ea8aa5f0e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ZZHjSU9f5wQeqS2B",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ZZHjSU9f5wQeqS2B",
+          "cachedResultName": "db-update-org-client-counts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "customer_id": "={{ $('Webhook').item.json.body.customer_id }}"
+          },
+          "matchingColumns": [
+            "customer_id"
+          ],
+          "schema": [
+            {
+              "id": "customer_id",
+              "displayName": "customer_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3360,
+        176
+      ],
+      "id": "0407f122-103e-423a-b243-56ea11dc0185",
+      "name": "CMS update totals"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "CMS GET bucket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS GET bucket": {
+      "main": [
+        [
+          {
+            "node": "customer bucket exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "customer bucket exists": {
+      "main": [
+        [
+          {
+            "node": "get array",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CMS Get Customer record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Setup Customer": {
+      "main": [
+        [
+          {
+            "node": "CMS Update bucket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS create client": {
+      "main": [
+        [
+          {
+            "node": "Stripe setup product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe setup product": {
+      "main": [
+        [
+          {
+            "node": "CMS update client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS update client": {
+      "main": [
+        [
+          {
+            "node": "setup subscription1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS Update bucket": {
+      "main": [
+        [
+          {
+            "node": "Stripe Create Payment Method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS Update bucket1": {
+      "main": [
+        [
+          {
+            "node": "CMS create client1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe setup product-1": {
+      "main": [
+        [
+          {
+            "node": "CMS update client1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS update client1": {
+      "main": [
+        [
+          {
+            "node": "setup subscription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get array": {
+      "main": [
+        [
+          {
+            "node": "CMS Update bucket1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS create client1": {
+      "main": [
+        [
+          {
+            "node": "Stripe setup product-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Create Payment Method": {
+      "main": [
+        [
+          {
+            "node": "Stripe Attach PM to Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Attach PM to Customer": {
+      "main": [
+        [
+          {
+            "node": "Stripe set default payment method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe set default payment method": {
+      "main": [
+        [
+          {
+            "node": "CMS create client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setup subscription": {
+      "main": [
+        [
+          {
+            "node": "CMS  Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setup subscription1": {
+      "main": [
+        [
+          {
+            "node": "CMS Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS Get Customer record": {
+      "main": [
+        [
+          {
+            "node": "CMS create customer bucket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS create customer bucket": {
+      "main": [
+        [
+          {
+            "node": "Stripe Setup Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS  Update a row": {
+      "main": [
+        [
+          {
+            "node": "CMS update totals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS Update a row1": {
+      "main": [
+        [
+          {
+            "node": "CMS update totals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS update totals": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "localhost:5678",
+            "connection": "keep-alive",
+            "content-length": "119",
+            "sec-ch-ua-platform": "\"macOS\"",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+            "sec-ch-ua": "\"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\"",
+            "content-type": "application/json",
+            "sec-ch-ua-mobile": "?0",
+            "accept": "*/*",
+            "origin": "http://localhost:3000",
+            "sec-fetch-site": "same-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "http://localhost:3000/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-US,en;q=0.9",
+            "x-chrome-profile": "mav@stripe.com"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "name": "aris doe",
+            "customer_id": 38,
+            "org_name": "box hill",
+            "parent_org_id": 36,
+            "parent_org_name": "The Hills Accountants",
+            "recurring_interval": "day",
+            "recurring_quantity": 1
+          },
+          "webhookUrl": "http://localhost:5678/webhook/9bb60f67-163a-4c53-b222-71e87c1dcde2",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "versionId": "cc9ff9a3-350b-44df-a409-c6e6f4ad3ac9",
+  "activeVersionId": "cc9ff9a3-350b-44df-a409-c6e6f4ad3ac9",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2025-12-22T06:44:05.308Z",
+      "createdAt": "2025-12-22T06:44:05.308Z",
+      "role": "workflow:owner",
+      "workflowId": "tAQor5plSYocveVe",
+      "projectId": "nItPZc4XiFJ8PFCo"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2025-12-22T06:50:48.969Z",
+    "createdAt": "2025-12-22T06:50:48.969Z",
+    "versionId": "cc9ff9a3-350b-44df-a409-c6e6f4ad3ac9",
+    "workflowId": "tAQor5plSYocveVe",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "create-client",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          176
+        ],
+        "id": "c419c81b-1b67-472a-bfb9-1be7a0047f14",
+        "name": "Webhook",
+        "webhookId": "9bb60f67-163a-4c53-b222-71e87c1dcde2"
+      },
+      {
+        "parameters": {
+          "options": {
+            "responseCode": 200
+          }
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.4,
+        "position": [
+          3584,
+          176
+        ],
+        "id": "7b2ea03e-d24c-47a3-a386-4e34f91aa97e",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "url": "=http://nocodb_b2b_subscriptions:8080/api/v2/tables/mtqzc80k0nz1xs3/records?offset=0&limit=1000&where=(ckvrefiqrww7osy,eq,{{ $json.body.customer_id }})~and(cnczbz8s77km86g,lt,500)\n",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "nocoDbApiToken",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          224,
+          176
+        ],
+        "id": "1b39fada-fac0-41e9-9fa6-bd6141bc4fae",
+        "name": "CMS GET bucket",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "4ed78f19-d86d-407c-a818-c3f296d0a62c",
+                "leftValue": "={{ $json.pageInfo.totalRows }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          448,
+          176
+        ],
+        "id": "ecebd280-0b1e-4c33-a176-962b0c27674b",
+        "name": "customer bucket exists"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.stripe.com/v1/customers",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "stripeApi",
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "=name",
+                "value": "={{ $('Webhook').item.json.body.parent_org_name }} - {{ $('Webhook').item.json.body.org_name }}"
+              },
+              {
+                "name": "metadata",
+                "value": "={{\n\n{\n   cms_customer_subscrbucket_id: $json.customer_id,\n  project: \"b2b-subscription-portal\",\n  parent_customer_id: $('Webhook').item.json.body.parent_org_id,\ncustomer_id: $('Webhook').item.json.body.customer_id,\nparent_org: $('Webhook').item.json.body.org_name,\norg: $('Webhook').item.json.body.org_name\n}\n  \n}}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1120,
+          272
+        ],
+        "id": "baffdcca-df46-4ff2-91cd-2c6589a5f962",
+        "name": "Stripe Setup Customer",
+        "credentials": {
+          "stripeApi": {
+            "id": "UfwHUKMGqcDwmoww",
+            "name": "Stripe Helms deep"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "create",
+          "projectId": "pbdnynuaiu9rnzt",
+          "table": "movod4uaaxxw62n",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldName": "name",
+                "fieldValue": "={{ $('Webhook').item.json.body.name }}"
+              },
+              {
+                "fieldName": "customer_id",
+                "fieldValue": "={{ $('Webhook').item.json.body.customer_id }}"
+              },
+              {
+                "fieldName": "customer_subscription_bucket_id",
+                "fieldValue": "={{ $('CMS create customer bucket').item.json.Id }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          2240,
+          272
+        ],
+        "id": "e4bac7c8-afcb-4e83-b7aa-e1a47b9e1732",
+        "name": "CMS create client",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.stripe.com/v1/products",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "stripeApi",
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "name",
+                "value": "={{ $json.name }}"
+              },
+              {
+                "name": "id",
+                "value": "={{ $('Webhook').item.json.body.customer_id }}_{{ $('CMS Update bucket').first().json.Id }}_{{ $('CMS create client').first().json.Id }}"
+              },
+              {
+                "name": "metadata",
+                "value": "={{ \n\n  {\n    project: \"b2b-subscription-portal\",\n    customer_id: $('Webhook').item.json.body.customer_id,\ncustomer_subscription_bucket_id: $json.customer_subscription_bucket_id,\nclient_id: $json.Id,\norg: $('Webhook').item.json.body.org_name,\nparent_org: $('Webhook').item.json.body.org_name\n\n\n }\n\n\n}}"
+              },
+              {
+                "name": "default_price_data",
+                "value": "={{ \n  {\n    currency: \"aud\",\n    unit_amount: 9.99*100,\nrecurring: {\n                interval: $('Webhook').item.json.body.recurring_interval,\n                interval_count: $('Webhook').item.json.body.recurring_quantity\n              }\n  }\n}}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2464,
+          272
+        ],
+        "id": "75d4bcb6-f994-44d4-bde4-7dc0903ebe6c",
+        "name": "Stripe setup product",
+        "credentials": {
+          "stripeApi": {
+            "id": "UfwHUKMGqcDwmoww",
+            "name": "Stripe Helms deep"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "update",
+          "projectId": "pcsywg993oum84v",
+          "table": "mi9nwi0pj3158ju",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldName": "Id",
+                "fieldValue": "={{ $('CMS create client').item.json.Id }}"
+              },
+              {
+                "fieldName": "stripe_product_id",
+                "fieldValue": "={{ $('Stripe setup product').first().json.id }}"
+              },
+              {
+                "fieldName": "stripe_price_id",
+                "fieldValue": "={{ $json.default_price }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          2688,
+          272
+        ],
+        "id": "88aaf4e5-8546-4b56-be38-406ea3a5ca1e",
+        "name": "CMS update client",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "update",
+          "projectId": "pbdnynuaiu9rnzt",
+          "table": "mtqzc80k0nz1xs3",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldName": "Id",
+                "fieldValue": "={{ $('CMS create customer bucket').item.json.Id }}"
+              },
+              {
+                "fieldName": "stripe_customer_id",
+                "fieldValue": "={{ $json.id }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          1344,
+          272
+        ],
+        "id": "02ead391-1b14-4f26-97ad-b7d5de378074",
+        "name": "CMS Update bucket",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "update",
+          "projectId": "pbdnynuaiu9rnzt",
+          "table": "mtqzc80k0nz1xs3",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldName": "Id",
+                "fieldValue": "={{ $json.Id }}"
+              },
+              {
+                "fieldName": "total_clients_assigned",
+                "fieldValue": "={{ $json.total_clients_assigned + 1 }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          2016,
+          80
+        ],
+        "id": "8da68492-29af-4132-929e-53bdfcc92e8b",
+        "name": "CMS Update bucket1",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.stripe.com/v1/products",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "stripeApi",
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "name",
+                "value": "={{ $json.name }}"
+              },
+              {
+                "name": "id",
+                "value": "={{ $('Webhook').item.json.body.customer_id }}_{{ $('CMS Update bucket1').first().json.Id }}_{{ $('CMS create client1').first().json.Id }}"
+              },
+              {
+                "name": "metadata",
+                "value": "={{ \n\n  {\n    project: \"b2b-subscription-portal\",\n    customer_id: $('Webhook').item.json.body.customer_id,\ncustomer_subscription_bucket_id: $json.customer_subscription_bucket_id,\nclient_id: $json.Id,\norg: $('Webhook').item.json.body.org_name,\nparent_org: $('Webhook').item.json.body.org_name\n\n\n }\n\n\n}}"
+              },
+              {
+                "name": "default_price_data",
+                "value": "={{ \n  {\n    currency: \"aud\",\n    unit_amount: 9.99*100,\n    recurring: {\n                interval: $('Webhook').item.json.body.recurring_interval,\n                interval_count:$('Webhook').item.json.body.recurring_quantity\n              }\n  }\n}}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2464,
+          80
+        ],
+        "id": "919b9ecf-89a8-43ca-8f83-2970733679a8",
+        "name": "Stripe setup product-1",
+        "credentials": {
+          "stripeApi": {
+            "id": "UfwHUKMGqcDwmoww",
+            "name": "Stripe Helms deep"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "update",
+          "projectId": "pbdnynuaiu9rnzt",
+          "table": "movod4uaaxxw62n",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldName": "Id",
+                "fieldValue": "={{ $('CMS create client1').item.json.Id }}"
+              },
+              {
+                "fieldName": "stripe_product_id",
+                "fieldValue": "={{ $('Stripe setup product-1').first().json.id }}"
+              },
+              {
+                "fieldName": "stripe_price_id",
+                "fieldValue": "={{ $json.default_price }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          2688,
+          80
+        ],
+        "id": "9c680e4e-7635-408e-8e05-7023f06de4b3",
+        "name": "CMS update client1",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n // item.json.myNewField = 1;\n}\n\nreturn $input.first().json.list;"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1792,
+          80
+        ],
+        "id": "b5fe221c-0569-4a49-9375-e029418f0d7b",
+        "name": "get array"
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "create",
+          "projectId": "pbdnynuaiu9rnzt",
+          "table": "movod4uaaxxw62n",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldName": "name",
+                "fieldValue": "={{ $('Webhook').item.json.body.name }}"
+              },
+              {
+                "fieldName": "customer_id",
+                "fieldValue": "={{ $('Webhook').item.json.body.customer_id }}"
+              },
+              {
+                "fieldName": "customer_subscription_bucket_id",
+                "fieldValue": "={{ $json.Id }}"
+              },
+              {
+                "fieldName": "total_clients_assigned",
+                "fieldValue": "={{ $('CMS GET bucket').item.json.list[0].total_clients_assigned+1 }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          2240,
+          80
+        ],
+        "id": "1aaf6e29-4986-4e14-955a-1582451a4239",
+        "name": "CMS create client1",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.stripe.com/v1/payment_methods",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "stripeApi",
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "type",
+                "value": "card"
+              },
+              {
+                "name": "card",
+                "value": "={{ { token: \"tok_visa\" } }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1568,
+          272
+        ],
+        "id": "be1d6b36-bdaf-41c9-914d-36412769afc5",
+        "name": "Stripe Create Payment Method",
+        "credentials": {
+          "stripeApi": {
+            "id": "UfwHUKMGqcDwmoww",
+            "name": "Stripe Helms deep"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://api.stripe.com/v1/payment_methods/{{ $('Stripe Create Payment Method').item.json.id }}/attach ",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "stripeApi",
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "customer",
+                "value": "={{ $('Stripe Setup Customer').item.json.id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1792,
+          272
+        ],
+        "id": "7be0bf41-2de6-475f-b6cc-92957cde139d",
+        "name": "Stripe Attach PM to Customer",
+        "credentials": {
+          "stripeApi": {
+            "id": "UfwHUKMGqcDwmoww",
+            "name": "Stripe Helms deep"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://api.stripe.com/v1/customers/{{ $('Stripe Setup Customer').item.json.id }}",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "stripeApi",
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "invoice_settings",
+                "value": "={{ \n{default_payment_method: $json.id}\n\n}}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2016,
+          272
+        ],
+        "id": "4c86beec-8295-4cab-87e5-97aa7d585204",
+        "name": "Stripe set default payment method",
+        "credentials": {
+          "stripeApi": {
+            "id": "UfwHUKMGqcDwmoww",
+            "name": "Stripe Helms deep"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.stripe.com/v1/subscriptions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "stripeApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Stripe-Version",
+                "value": "2025-09-30.clover"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "billing_mode",
+                "value": "={{ { type: 'flexible'} }}"
+              },
+              {
+                "name": "customer",
+                "value": "={{ $('CMS GET bucket').item.json.list[0].stripe_customer_id }}"
+              },
+              {
+                "name": "items",
+                "value": "={{ \n[\n{price: $('Stripe setup product-1').item.json.default_price,\nquantity:1\n\n}\n]\n\n}}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2912,
+          80
+        ],
+        "id": "e7c191ee-6fc5-4594-88b2-7a733a7442e3",
+        "name": "setup subscription",
+        "credentials": {
+          "stripeApi": {
+            "id": "UfwHUKMGqcDwmoww",
+            "name": "Stripe Helms deep"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.stripe.com/v1/subscriptions",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "stripeApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Stripe-Version",
+                "value": "2025-09-30.clover"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "billing_mode",
+                "value": "={{ { type: 'flexible'} }}"
+              },
+              {
+                "name": "customer",
+                "value": "={{ $('CMS Update bucket').item.json.stripe_customer_id }}"
+              },
+              {
+                "name": "items",
+                "value": "={{ \n[\n{price: $('Stripe setup product').item.json.default_price,\nquantity:1\n\n}\n]\n\n}}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2912,
+          272
+        ],
+        "id": "d37d2842-8ff9-4f65-80be-ac75f4b5a510",
+        "name": "setup subscription1",
+        "credentials": {
+          "stripeApi": {
+            "id": "UfwHUKMGqcDwmoww",
+            "name": "Stripe Helms deep"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "projectId": "pbdnynuaiu9rnzt",
+          "table": "mczt2y5uzyqbl86",
+          "id": "={{ $('Webhook').item.json.body.customer_id }}"
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          672,
+          272
+        ],
+        "id": "b54d1349-7850-42f5-9ca4-77f268f47f0e",
+        "name": "CMS Get Customer record",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "create",
+          "projectId": "pbdnynuaiu9rnzt",
+          "table": "mtqzc80k0nz1xs3",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldName": "customer_id",
+                "fieldValue": "={{ $('Webhook').item.json.body.customer_id }}"
+              },
+              {
+                "fieldName": "total_clients_assigned",
+                "fieldValue": "0"
+              },
+              {
+                "fieldName": "total_clients_assigned",
+                "fieldValue": "1"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          896,
+          272
+        ],
+        "id": "5b032b45-0f5a-4168-b2e9-608cef220a23",
+        "name": "CMS create customer bucket",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "update",
+          "projectId": "pbdnynuaiu9rnzt",
+          "table": "movod4uaaxxw62n",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldName": "Id",
+                "fieldValue": "={{ $('CMS update client1').item.json.Id }}"
+              },
+              {
+                "fieldName": "stripe_subscription_id",
+                "fieldValue": "={{ $json.id }}"
+              },
+              {
+                "fieldName": "stripe_subscription_status",
+                "fieldValue": "={{ $json.status }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          3136,
+          80
+        ],
+        "id": "ae48b069-2afe-4263-b55a-060ee126bb42",
+        "name": "CMS  Update a row",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "update",
+          "projectId": "pbdnynuaiu9rnzt",
+          "table": "movod4uaaxxw62n",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldName": "Id",
+                "fieldValue": "={{ $('CMS update client').item.json.Id }}"
+              },
+              {
+                "fieldName": "stripe_subscription_id",
+                "fieldValue": "={{ $json.id }}"
+              },
+              {
+                "fieldName": "stripe_subscription_status",
+                "fieldValue": "={{ $json.status }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          3136,
+          272
+        ],
+        "id": "c40b75af-0586-4f9f-9f30-bf4ced46ecaf",
+        "name": "CMS Update a row1",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## Client creation with customer partioning\n\nThis flow will create a new stripe customer id for every 500 subscriptions, state is tracked in the CMS and Stripe name & metadata",
+          "height": 144,
+          "width": 496
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          0,
+          0
+        ],
+        "typeVersion": 1,
+        "id": "d475c9c2-af4e-4122-a115-e00ea8aa5f0e",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "ZZHjSU9f5wQeqS2B",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/ZZHjSU9f5wQeqS2B",
+            "cachedResultName": "db-update-org-client-counts"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "customer_id": "={{ $('Webhook').item.json.body.customer_id }}"
+            },
+            "matchingColumns": [
+              "customer_id"
+            ],
+            "schema": [
+              {
+                "id": "customer_id",
+                "displayName": "customer_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "number"
+              }
+            ],
+            "attemptToConvertTypes": true,
+            "convertFieldsToString": true
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.3,
+        "position": [
+          3360,
+          176
+        ],
+        "id": "0407f122-103e-423a-b243-56ea11dc0185",
+        "name": "CMS update totals"
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "CMS GET bucket",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS GET bucket": {
+        "main": [
+          [
+            {
+              "node": "customer bucket exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "customer bucket exists": {
+        "main": [
+          [
+            {
+              "node": "get array",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "CMS Get Customer record",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Stripe Setup Customer": {
+        "main": [
+          [
+            {
+              "node": "CMS Update bucket",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS create client": {
+        "main": [
+          [
+            {
+              "node": "Stripe setup product",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Stripe setup product": {
+        "main": [
+          [
+            {
+              "node": "CMS update client",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS update client": {
+        "main": [
+          [
+            {
+              "node": "setup subscription1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS Update bucket": {
+        "main": [
+          [
+            {
+              "node": "Stripe Create Payment Method",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS Update bucket1": {
+        "main": [
+          [
+            {
+              "node": "CMS create client1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Stripe setup product-1": {
+        "main": [
+          [
+            {
+              "node": "CMS update client1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS update client1": {
+        "main": [
+          [
+            {
+              "node": "setup subscription",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get array": {
+        "main": [
+          [
+            {
+              "node": "CMS Update bucket1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS create client1": {
+        "main": [
+          [
+            {
+              "node": "Stripe setup product-1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Stripe Create Payment Method": {
+        "main": [
+          [
+            {
+              "node": "Stripe Attach PM to Customer",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Stripe Attach PM to Customer": {
+        "main": [
+          [
+            {
+              "node": "Stripe set default payment method",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Stripe set default payment method": {
+        "main": [
+          [
+            {
+              "node": "CMS create client",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "setup subscription": {
+        "main": [
+          [
+            {
+              "node": "CMS  Update a row",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "setup subscription1": {
+        "main": [
+          [
+            {
+              "node": "CMS Update a row1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS Get Customer record": {
+        "main": [
+          [
+            {
+              "node": "CMS create customer bucket",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS create customer bucket": {
+        "main": [
+          [
+            {
+              "node": "Stripe Setup Customer",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS  Update a row": {
+        "main": [
+          [
+            {
+              "node": "CMS update totals",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS Update a row1": {
+        "main": [
+          [
+            {
+              "node": "CMS update totals",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS update totals": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "mav peri",
+    "name": null,
+    "description": null
+  },
+  "tags": [
+    {
+      "updatedAt": "2025-12-22T06:07:44.324Z",
+      "createdAt": "2025-12-22T06:07:44.324Z",
+      "id": "gu0ceXWNm5qUUdZf",
+      "name": "db"
+    },
+    {
+      "updatedAt": "2025-12-22T06:07:44.321Z",
+      "createdAt": "2025-12-22T06:07:44.321Z",
+      "id": "nKciuNTThwcFsRRm",
+      "name": "stripe"
+    }
+  ]
+}

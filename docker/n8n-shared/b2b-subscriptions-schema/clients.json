@@ -1,0 +1,37 @@
+{
+  "tableTitle": "clients",
+  "tableDescription": "",
+  "fields": [
+    {
+      "title": "name",
+      "type": "SingleLineText"
+    },
+    {
+      "title": "stripe_product_id",
+      "type": "SingleLineText",
+      "description": "experiment to see if we can represent customers as products for a given org level subscription"
+    },
+    {
+      "title": "customer_id",
+      "type": "Number",
+      "options": {}
+    },
+    {
+      "title": "customer_subscription_bucket_id",
+      "type": "Number",
+      "options": {}
+    },
+    {
+      "title": "stripe_price_id",
+      "type": "LongText"
+    },
+    {
+      "title": "stripe_subscription_id",
+      "type": "SingleLineText"
+    },
+    {
+      "title": "stripe_subscription_status",
+      "type": "SingleLineText"
+    }
+  ]
+}

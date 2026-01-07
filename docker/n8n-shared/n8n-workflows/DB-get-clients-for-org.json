@@ -1,0 +1,263 @@
+{
+  "updatedAt": "2025-12-22T06:51:53.648Z",
+  "createdAt": "2025-12-22T06:20:31.796Z",
+  "id": "cZvpCrFhF11n5SKZ",
+  "name": "DB-get-clients-for-org",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "get-clients",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3d8e193c-13a7-46e0-b95c-c0968df1a2c0",
+      "name": "Webhook",
+      "webhookId": "749875ba-44af-44e0-bded-ab2feb954445"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        736,
+        0
+      ],
+      "id": "8e02d4d5-a25b-4172-bf48-11106278bc75",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of \nreturn {\n  total:  $input.first().json.pageInfo.totalRows,\n  response_code: 200,\n  data: $input.first().json.list\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        0
+      ],
+      "id": "8c7c4012-2d99-4a4c-886e-5735a6bd4b26",
+      "name": "prep response"
+    },
+    {
+      "parameters": {
+        "url": "=http://nocodb_b2b_subscriptions:8080/api/v2/tables/movod4uaaxxw62n/records?offset=0&limit=1000&where=(ciwt4la5qhb7zvo,eq,{{ $('Webhook').first().json.body.customer_id }})\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "nocoDbApiToken",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "76f0e704-4283-44fc-a05a-07d1705c11d8",
+      "name": "CMS get clients for org",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "CMS get clients for org",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prep response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS get clients for org": {
+      "main": [
+        [
+          {
+            "node": "prep response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "body": {
+            "customer_id": 38
+          }
+        }
+      }
+    ]
+  },
+  "versionId": "f12b404e-14b5-4035-83d2-ca3a70e6e70e",
+  "activeVersionId": "f12b404e-14b5-4035-83d2-ca3a70e6e70e",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2025-12-22T06:20:31.799Z",
+      "createdAt": "2025-12-22T06:20:31.799Z",
+      "role": "workflow:owner",
+      "workflowId": "cZvpCrFhF11n5SKZ",
+      "projectId": "nItPZc4XiFJ8PFCo"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2025-12-22T06:51:45.039Z",
+    "createdAt": "2025-12-22T06:51:45.039Z",
+    "versionId": "f12b404e-14b5-4035-83d2-ca3a70e6e70e",
+    "workflowId": "cZvpCrFhF11n5SKZ",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "get-clients",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "3d8e193c-13a7-46e0-b95c-c0968df1a2c0",
+        "name": "Webhook",
+        "webhookId": "749875ba-44af-44e0-bded-ab2feb954445"
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {
+            "responseCode": 200
+          }
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.4,
+        "position": [
+          736,
+          0
+        ],
+        "id": "8e02d4d5-a25b-4172-bf48-11106278bc75",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of \nreturn {\n  total:  $input.first().json.pageInfo.totalRows,\n  response_code: 200,\n  data: $input.first().json.list\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          496,
+          0
+        ],
+        "id": "8c7c4012-2d99-4a4c-886e-5735a6bd4b26",
+        "name": "prep response"
+      },
+      {
+        "parameters": {
+          "url": "=http://nocodb_b2b_subscriptions:8080/api/v2/tables/movod4uaaxxw62n/records?offset=0&limit=1000&where=(ciwt4la5qhb7zvo,eq,{{ $('Webhook').first().json.body.customer_id }})\n",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "nocoDbApiToken",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          240,
+          0
+        ],
+        "id": "76f0e704-4283-44fc-a05a-07d1705c11d8",
+        "name": "CMS get clients for org",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "Rii6SOKlExHWpYgv",
+            "name": "NocoDB API token"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "CMS get clients for org",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "prep response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CMS get clients for org": {
+        "main": [
+          [
+            {
+              "node": "prep response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "mav peri",
+    "name": null,
+    "description": null
+  },
+  "tags": [
+    {
+      "updatedAt": "2025-12-22T06:07:44.324Z",
+      "createdAt": "2025-12-22T06:07:44.324Z",
+      "id": "gu0ceXWNm5qUUdZf",
+      "name": "db"
+    }
+  ]
+}

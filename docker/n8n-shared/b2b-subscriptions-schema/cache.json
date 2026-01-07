@@ -1,0 +1,18 @@
+{
+  "tableTitle": "cache",
+  "tableDescription": "",
+  "fields": [
+    {
+      "title": "key",
+      "type": "SingleLineText"
+    },
+    {
+      "title": "value",
+      "type": "LongText"
+    },
+    {
+      "title": "value_type",
+      "type": "LongText"
+    }
+  ]
+}

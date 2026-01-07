@@ -1,0 +1,338 @@
+{
+  "updatedAt": "2025-12-22T06:35:36.001Z",
+  "createdAt": "2025-12-22T06:26:55.040Z",
+  "id": "ZZHjSU9f5wQeqS2B",
+  "name": "db-update-org-client-counts",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "customer_id",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8e38557c-7b2a-4c76-83ec-ae24f37406dd",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "=http://nocodb_b2b_subscriptions:8080/api/v2/tables/movod4uaaxxw62n/records?offset=0&limit=1&where=(ciwt4la5qhb7zvo,eq,{{ $('When Executed by Another Workflow').item.json.customer_id }})~and(cqy1i3160vesle9,eq,active)\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "nocoDbApiToken",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f5c1e3d2-16a6-4100-9f9b-0615f597b750",
+      "name": "CMS GET active subscriptions",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=http://nocodb_b2b_subscriptions:8080/api/v2/tables/movod4uaaxxw62n/records?offset=0&limit=1&where=(ciwt4la5qhb7zvo,eq,{{ $('When Executed by Another Workflow').item.json.customer_id }})~and(cqy1i3160vesle9,eq,paused)\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "nocoDbApiToken",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "c397b692-ea99-451b-b9fe-a199243d46ed",
+      "name": "CMS GET  paused subscriptions",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n // item.json.myNewField = 1;\n}\n\nreturn {\n    org_id: $('When Executed by Another Workflow').first().json.customer_id, \n    active: $('CMS GET active subscriptions').first().json.pageInfo.totalRows,\n    paused: $input.first().json.pageInfo.totalRows\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        0
+      ],
+      "id": "7a05f112-eaeb-496a-b110-014f26032885",
+      "name": "prep data"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "mczt2y5uzyqbl86",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Id",
+              "fieldValue": "={{ $json.org_id }}"
+            },
+            {
+              "fieldName": "client_count",
+              "fieldValue": "={{ $json.active + $json.paused }}"
+            },
+            {
+              "fieldName": "client_count_active",
+              "fieldValue": "={{ $json.active }}"
+            },
+            {
+              "fieldName": "client_count_paused",
+              "fieldValue": "={{ $json.paused }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        864,
+        0
+      ],
+      "id": "e9aff5ce-d506-4707-977d-53f828c7c826",
+      "name": "CMS update stats",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "mczt2y5uzyqbl86",
+        "id": "={{ $('When Executed by Another Workflow').item.json.customer_id }}"
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1072,
+        0
+      ],
+      "id": "9929047b-3d45-4e84-aae5-89b1319e5195",
+      "name": "CMS Get parent org id",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "LAqKVkCozuvqG53A",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/LAqKVkCozuvqG53A",
+          "cachedResultName": "db-update-overall-stats"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1488,
+        0
+      ],
+      "id": "59bac158-2386-4868-a659-9778450ffc79",
+      "name": "Call 'db-update-overall-stats'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "jZmh939NhxIcIfXz",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/jZmh939NhxIcIfXz",
+          "cachedResultName": "db-update-parent-org-client-counts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "parent_org_id": "={{ $json.parent_org_id }}"
+          },
+          "matchingColumns": [
+            "parent_org_id"
+          ],
+          "schema": [
+            {
+              "id": "parent_org_id",
+              "displayName": "parent_org_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "51747174-7879-4ec7-8faf-7bb47120aa92",
+      "name": "Call 'db-update-parent-org-client-counts'"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "CMS GET active subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS GET active subscriptions": {
+      "main": [
+        [
+          {
+            "node": "CMS GET  paused subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS GET  paused subscriptions": {
+      "main": [
+        [
+          {
+            "node": "prep data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prep data": {
+      "main": [
+        [
+          {
+            "node": "CMS update stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS update stats": {
+      "main": [
+        [
+          {
+            "node": "CMS Get parent org id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS Get parent org id": {
+      "main": [
+        [
+          {
+            "node": "Call 'db-update-parent-org-client-counts'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'db-update-parent-org-client-counts'": {
+      "main": [
+        [
+          {
+            "node": "Call 'db-update-overall-stats'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "customer_id": 38
+        }
+      }
+    ]
+  },
+  "versionId": "5a6c199b-cafb-4189-9d1c-1d43ba156518",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2025-12-22T06:26:55.043Z",
+      "createdAt": "2025-12-22T06:26:55.043Z",
+      "role": "workflow:owner",
+      "workflowId": "ZZHjSU9f5wQeqS2B",
+      "projectId": "nItPZc4XiFJ8PFCo"
+    }
+  ],
+  "activeVersion": null,
+  "tags": [
+    {
+      "updatedAt": "2025-12-22T06:07:44.324Z",
+      "createdAt": "2025-12-22T06:07:44.324Z",
+      "id": "gu0ceXWNm5qUUdZf",
+      "name": "db"
+    }
+  ]
+}

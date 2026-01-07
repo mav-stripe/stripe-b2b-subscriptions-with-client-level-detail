@@ -1,0 +1,723 @@
+{
+  "updatedAt": "2025-12-22T07:06:05.854Z",
+  "createdAt": "2025-12-22T06:59:44.787Z",
+  "id": "9vuHruAZ7l5U4J3C",
+  "name": "export workflows",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "5a69240e-2050-4aa6-a3ae-f2109230a5b2",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2048,
+        496
+      ],
+      "id": "50d0261a-4078-4952-83b5-723abad96131",
+      "name": "Webhook",
+      "webhookId": "5a69240e-2050-4aa6-a3ae-f2109230a5b2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f750be05-5898-49a8-b07d-94ae9625bfdd",
+              "leftValue": "={{ $json.nextCursor }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        400
+      ],
+      "id": "abbf511c-8e1b-445d-83df-460fa99b48a2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n//  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        496
+      ],
+      "id": "a4275187-c156-4756-b4b3-8c8de254864e",
+      "name": "pagination required"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": "={{ $json.status }}",
+          "responseKey": "={{ $json }}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1984,
+        496
+      ],
+      "id": "3fbc0768-429d-4632-bc6c-505c0c05a1ff",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "content": "## info\n\nThis workflow exports all workflows and tags and commits them to a local repo\n\nlocal API\nhttp://localhost:5678/api/v1/docs/#/",
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -336,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "85a2dfbb-5488-4868-b3ee-db0774505c14",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/shared/n8n-workflows/{{ $('process each workflow item').item.json.name }}.json",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        304
+      ],
+      "id": "89a41d81-e770-426c-8b78-7e2019be3520",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "mode": "each",
+        "options": {
+          "format": true,
+          "fileName": "={{ $json.name }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        304
+      ],
+      "id": "1ed5c2af-aebb-4a42-8220-a0258e194753",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "31a86970-a0b0-4ee6-ae75-f8cf1ad48a61",
+              "leftValue": "={{ $json.nextCursor }}",
+              "rightValue": "null",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1152,
+        496
+      ],
+      "id": "f9eaaf1d-d443-4c48-b30b-6b7485a73a93",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n//$input.item.json.myNewField = 1;\n\nreturn $input.item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        400
+      ],
+      "id": "d4ec1d95-209d-4315-999d-5b54521b0231",
+      "name": "process each tag"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Add a new field called 'myNewField' to the JSON of the item\n\nreturn $input.item.json;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        304
+      ],
+      "id": "45cbd33a-8015-4ff1-97c0-46f30f2b2ab5",
+      "name": "process each workflow item"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n\n\nreturn $input.first().json.data"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -928,
+        400
+      ],
+      "id": "46e56db3-c772-47de-b362-4543667943b1",
+      "name": "pagination not required for tags"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n // item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        400
+      ],
+      "id": "92df64e7-798e-42db-817f-c577da698902",
+      "name": "get workflows arr"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n // item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        400
+      ],
+      "id": "1feb07c9-8efe-42b7-9cd5-a91c80850cc3",
+      "name": "process each workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n\n\nreturn $input.first().json.data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        304
+      ],
+      "id": "a33c054c-50ac-4303-a1c6-924cc0672622",
+      "name": "pagination not required for workflows"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        688
+      ],
+      "id": "bb896766-54ba-4bfc-ac52-fb1ea3bd376c",
+      "name": "pagination required for tags"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  status: \"400\",\n  description: \"export did not go as expected\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        592
+      ],
+      "id": "924cf3d1-2d14-4613-a44b-63eeeaea2ac0",
+      "name": "bad request"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  status: 200,\n  description: \"steps completed successfuly\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        304
+      ],
+      "id": "b13c6d9c-3b60-477b-b73c-ce8a42794550",
+      "name": "successful response"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5678/api/v1/tags",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1376,
+        496
+      ],
+      "id": "c1768fd6-2590-49d3-9344-845adea44af8",
+      "name": "get n8n tags",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HnedDsgwhnEpo1m9",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5678/api/v1/workflows",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        400
+      ],
+      "id": "b74f7e9f-7e40-43e0-a37a-b0e848ead5fd",
+      "name": "get n8n workflows",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HnedDsgwhnEpo1m9",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5678/api/v1/credentials",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1216,
+        768
+      ],
+      "id": "403b384e-e559-42fc-b01e-ea8ab2865a74",
+      "name": "get n8n tags1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "command": "mkdir -p /shared/workflow-exports/n8n/workflow-tags/"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -1824,
+        496
+      ],
+      "id": "ef42966d-6664-4cbf-bcc1-09a379e9f5c1",
+      "name": "create export folder tags"
+    },
+    {
+      "parameters": {
+        "command": "mkdir -p /shared/workflow-exports/n8n/workflows/"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        496
+      ],
+      "id": "5b92cc2c-37a5-4c19-95b1-673c8c206142",
+      "name": "create export folder workflows"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/shared/workflow-tags/{{ $('process each tag').item.json.name }}.json",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        400
+      ],
+      "id": "886e8551-0cdb-46c0-9ca5-ce111829c63b",
+      "name": "Save workflow tags"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "mode": "each",
+        "options": {
+          "format": true,
+          "fileName": "={{ $json.name }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        400
+      ],
+      "id": "08c95dfa-453e-4540-b736-1e5750ca4961",
+      "name": "Convert to File (tags)"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "create export folder tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "pagination not required for workflows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "pagination required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pagination required": {
+      "main": [
+        [
+          {
+            "node": "bad request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "successful response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "pagination not required for tags",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "pagination required for tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process each tag": {
+      "main": [
+        [
+          {
+            "node": "Convert to File (tags)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process each workflow item": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pagination not required for tags": {
+      "main": [
+        [
+          {
+            "node": "process each tag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get workflows arr": {
+      "main": [
+        [
+          {
+            "node": "process each workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process each workflow": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pagination not required for workflows": {
+      "main": [
+        [
+          {
+            "node": "process each workflow item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pagination required for tags": {
+      "main": [
+        [
+          {
+            "node": "bad request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "bad request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "successful response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get n8n tags": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get n8n workflows": {
+      "main": [
+        [
+          {
+            "node": "get workflows arr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create export folder tags": {
+      "main": [
+        [
+          {
+            "node": "create export folder workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create export folder workflows": {
+      "main": [
+        [
+          {
+            "node": "get n8n tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save workflow tags": {
+      "main": [
+        [
+          {
+            "node": "get n8n workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File (tags)": {
+      "main": [
+        [
+          {
+            "node": "Save workflow tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "name": "First item",
+          "code": 1
+        }
+      },
+      {
+        "json": {
+          "name": "Second item",
+          "code": 2
+        }
+      }
+    ]
+  },
+  "versionId": "324bf16e-fc8f-4416-9469-621b7882bc05",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2025-12-22T06:59:44.788Z",
+      "createdAt": "2025-12-22T06:59:44.788Z",
+      "role": "workflow:owner",
+      "workflowId": "9vuHruAZ7l5U4J3C",
+      "projectId": "nItPZc4XiFJ8PFCo"
+    }
+  ],
+  "activeVersion": null,
+  "tags": []
+}

@@ -1,0 +1,167 @@
+{
+  "updatedAt": "2025-12-22T06:32:15.146Z",
+  "createdAt": "2025-12-22T06:31:48.189Z",
+  "id": "LAqKVkCozuvqG53A",
+  "name": "db-update-overall-stats",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        -208
+      ],
+      "id": "af9be2ee-8456-471a-a529-abcd0e1a903f",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "movod4uaaxxw62n",
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        704,
+        -208
+      ],
+      "id": "79bcc6f8-ac28-4f88-834c-fb488e5388ab",
+      "name": "Get many rows",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n\nlet obj = {\n  totalOrgs: 0,\n  totalSubOrgs: 0,\n  totalClients: 0,\n  totalActiveClients: 0,\n  totalPausedClients: 0\n}\nfor (const item of $input.all()) {\n  if(item.json.parent_org_id === null){\n    obj.totalOrgs++\n    obj.totalClients = obj.totalClients + item.json.client_count\n  }\n   if(item.json.parent_org_id !== null){\n     obj.totalSubOrgs++\n     obj.totalActiveClients = obj.totalActiveClients  + item.json.client_count_active\n     obj.totalPausedClients = obj.totalPausedClients  + item.json.client_count_paused\n  }\n\n//\n}\n\nreturn obj"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        -208
+      ],
+      "id": "e949501d-6a7e-435d-9586-8f68e6ff3f59",
+      "name": "prep stats"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "projectId": "pbdnynuaiu9rnzt",
+        "table": "mfm0szzz5qn1u90",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Id",
+              "fieldValue": "1"
+            },
+            {
+              "fieldName": "value",
+              "fieldValue": "={{ JSON.stringify($('prep stats').item.json, null, 2) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        -208
+      ],
+      "id": "16f5d97f-5571-4a18-b48a-16cdae8f4921",
+      "name": "Update a row",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "Rii6SOKlExHWpYgv",
+          "name": "NocoDB API token"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "prep stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prep stats": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "name": "First item",
+          "code": 1
+        }
+      }
+    ]
+  },
+  "versionId": "04d673c3-a826-45b4-842f-127fdef9c929",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2025-12-22T06:31:48.192Z",
+      "createdAt": "2025-12-22T06:31:48.192Z",
+      "role": "workflow:owner",
+      "workflowId": "LAqKVkCozuvqG53A",
+      "projectId": "nItPZc4XiFJ8PFCo"
+    }
+  ],
+  "activeVersion": null,
+  "tags": [
+    {
+      "updatedAt": "2025-12-22T06:07:44.324Z",
+      "createdAt": "2025-12-22T06:07:44.324Z",
+      "id": "gu0ceXWNm5qUUdZf",
+      "name": "db"
+    }
+  ]
+}
